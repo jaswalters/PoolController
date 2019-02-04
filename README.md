@@ -1,1 +1,1 @@
-# PoolController
+# Smart Things Pool Controller
