@@ -43,10 +43,4 @@ def SpaModeOff():
     GPIO.digitalWrite(23, GPIO.LOW)
     GPIO.digitalWrite(18, GPIO.LOW)
     pyjson = {"Mode": "SpaModeOff"}
-    return json.dumps(pyjson,indent=4, separators=(", ", ": "))
-
-@webiopi.macro
-def GetGPIOStatus():
-    if ((GPIO.digitalRead(23) == GPIO.HIGH) and (GPIO.digitalRead(18) == GPIO.HIGH)):
-        pyjson = {"GPIOStatus": "On"}
-        return json.dumps(pyjson,indent=4, separators=(", ", ": "))
+    return json.dumps(pyjson,indent=4, separators=(", ", ": ")
