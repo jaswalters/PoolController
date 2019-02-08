@@ -30,8 +30,6 @@ metadata {
         capability "Switch"
         capability "Sensor"
         capability "Actuator"
-        //attribute "SuctionValvePos", "enum", ["SpaPos", "PoolPos"]
-        //attribute "ReturnValvePos", "enum", ["SpaPos", "PoolPos"]
         attribute "cpuPercentage", "string"
         attribute "memory", "string"
         attribute "diskUsage", "string"
@@ -137,42 +135,54 @@ def parse(String description) {
 
     log.debug "RPi Power Status: stringValue: ${device.currentState("RPiPower").stringValue}"
 
-	if (result.PoolPump == "On") {
+	if (result.PoolPump == "On")
+    {
         log.debug "PoolPump: ${result.PoolPump}"
-        state.PoolPump = "on"
         sendEvent(name: "PoolPump", value: "on")
+        if (device.currentState("PoolPump").stringValue == "on")
+        {
+        	state.PoolPump = "on"
+        }
     }
     else if (result.PoolPump == "Off")
     {
     	log.debug "PoolPump: ${result.PoolPump}"
-        state.PoolPump = "off"
         sendEvent(name: "PoolPump", value: "off", isStateChange: true)
+        if (device.currentState("PoolPump").stringValue == "off")
+        {
+        	state.PoolPump = "off"
+        }
     }
     
-    if (result.cpu_temp) {
+    if (result.cpu_temp)
+    {
         log.debug "cpu_temp: ${result.cpu_temp}"
         sendEvent(name: "cpuTemperature", value: result.cpu_temp)
     }
 
-    if (result.cpu_usage) {
+    if (result.cpu_usage)
+    {
         log.debug "cpu $result.cpu_usage"
         sendEvent(name: "cpuPercentage", value: result.cpu_usage)
     }
 
-    if (result.mem_usage) {
+    if (result.mem_usage)
+    {
         log.debug "mem_usage: ${result.mem_usage}"
         sendEvent(name: "memUsage", value: result.mem_usage)
     }
 
-    if (result.disk_usage) {
+    if (result.disk_usage)
+    {
         log.debug "disk_usage: ${result.disk_usage}"
         sendEvent(name: "diskUsage", value: result.disk_usage)
     }
     log.debug "mode ${result.Mode}"
 
-    if (result.Mode && state.reboot != "true") {
-        //log.debug "My state = ${state.refresh}"
-        if (result.Mode == "FountainModeOff") {
+    if (result.Mode && state.reboot != "true")
+    {
+        if (result.Mode == "FountainModeOff")
+        {
             sendEvent(name: "FountainMode", value: "on")
 
             if (device.currentState("FountainMode").stringValue == "on") {
@@ -181,19 +191,23 @@ def parse(String description) {
                 sendEvent(name: "WaterFallMode", value: "off")
                 sendEvent(name: "SpaMode", value: "off")
             }
-        } else if (result.Mode == "WaterFallModeOff") {
+        } else if (result.Mode == "WaterFallModeOff")
+        {
             sendEvent(name: "WaterFallMode", value: "on")
 
-            if (device.currentState("WaterFallMode").stringValue == "on") {
+            if (device.currentState("WaterFallMode").stringValue == "on")
+            {
                 //Save the valve postion to state object
                 state.Mode = "WaterFallMode"
                 sendEvent(name: "FountainMode", value: "off")
                 sendEvent(name: "SpaMode", value: "off")
             }
-        } else if (result.Mode == "SpaModeOff") {
+        } else if (result.Mode == "SpaModeOff")
+        {
             sendEvent(name: "SpaMode", value: "on")
 
-            if (device.currentState("SpaMode").stringValue == "on") {
+            if (device.currentState("SpaMode").stringValue == "on")
+            {
                 //Save the valve postion to state object
                 state.Mode = "SpaMode"
                 sendEvent(name: "FountainMode", value: "off")
@@ -205,10 +219,12 @@ def parse(String description) {
         {
             sendEvent(name: "FountainMode", value: "turningOn")
             GetIncomingMode(state.Mode)
-        } else if (result.Mode == "WaterFallMode") {
+        } else if (result.Mode == "WaterFallMode")
+        {
             sendEvent(name: "WaterFallMode", value: "turningOn")
             GetIncomingMode(state.Mode)
-        } else if (result.Mode == "SpaMode") {
+        } else if (result.Mode == "SpaMode")
+        {
             sendEvent(name: "SpaMode", value: "turningOn")
             GetIncomingMode(state.Mode)
         }
@@ -217,7 +233,6 @@ def parse(String description) {
         
     	if (state.refresh == "true")
         {
-        	GetValveMode(state.Mode)	
             state.refresh = "false"
     	}
 }
@@ -257,7 +272,8 @@ def CheckModeState()
 
 //Sends post request to raspberry webiopi to turn on fountain via turnvlaves macro script
 def postFountainMode() {
-    if (state.reboot != "true") {
+    if (state.reboot != "true")
+    {
         log.debug "fountain on"
         def uri = "/macros/FountainModeOn"
         postAction(uri)
@@ -271,12 +287,13 @@ def FountainModeOn()
     {
     	if (state.Mode != "FountainMode")
         {
-    	if (device.currentState("PoolPump").stringValue == "on")
-        {
-        	PoolPumpOff()
-            def count = 0
-            def pumpStatus = device.currentState("PoolPump").stringValue
-            while(pumpStatus != "off" || count > 20)
+    		if (device.currentState("PoolPump").stringValue == "on")
+        	{
+        		PoolPumpOff()
+            	def count = 0
+            	def pumpStatus = device.currentState("PoolPump").stringValue
+            	log.debug "pump status before ${device.currentState("PoolPump").stringValue}"
+            	while(pumpStatus != "off" || count > 20)
             {
             	pumpStatus = device.currentState("PoolPump").stringValue
                 pause(500)
@@ -285,22 +302,23 @@ def FountainModeOn()
         }
         
         log.debug "pump status ${device.currentState("PoolPump").stringValue}"
-        if (device.currentState("PoolPump").stringValue == "off")
-        {
-            postFountainMode()
-            pause(10000)
-            postFountainModeOff()
-            def FountainOn = device.currentState("FountainMode").stringValue
-            while(FountainOn != "on")
-            {
-            	FountainOn = device.currentState("FountainMode").stringValue
-                pause(500)
-            }
-            if (device.currentState("FountainMode").stringValue == "on")
-            {
-            	PoolPumpOn()
-            }
-        }
+        log.debug "pool pump ${state.PoolPump}"
+        	if (device.currentState("PoolPump").stringValue == "off")
+        	{
+            	postFountainMode()
+            	pause(10000)
+            	postFountainModeOff()
+            	def FountainOn = device.currentState("FountainMode").stringValue
+            	while(FountainOn != "on")
+            	{
+            		FountainOn = device.currentState("FountainMode").stringValue
+                	pause(500)
+           		}
+            	if (device.currentState("FountainMode").stringValue == "on")
+            	{
+            		PoolPumpOn()
+            	}
+        	}
         }
     }
 }
@@ -320,7 +338,8 @@ def GetIncomingMode(Mode) {
 }
 
 def postFountainModeOff() {
-    if (state.reboot != "true" && device.currentState("RPiPower").stringValue == "on") {
+    if (state.reboot != "true" && device.currentState("RPiPower").stringValue == "on")
+    {
         log.debug "fountain off"
         def uri = "/macros/FountainModeOff"
         postAction(uri)
@@ -375,21 +394,24 @@ if (CheckModeState() == "true")
     }
 }
 
-def postWaterFallModeOff() {
+def postWaterFallModeOff()
+{
     if (state.reboot != "true" && device.currentState("RPiPower").stringValue == "on") {
         def uri = "/macros/WaterFallModeOff"
         postAction(uri)
     }
 }
 
-def postSpaModeOn() {
+def postSpaModeOn()
+{
     if (state.reboot != "true" && device.currentState("RPiPower").stringValue == "on") {
         def uri = "/macros/SpaModeOn"
         postAction(uri)
     }
 }
 
-def postSpaModeOff() {
+def postSpaModeOff()
+{
     if (state.reboot != "true" && device.currentState("RPiPower").stringValue == "on") {
         def uri = "/macros/SpaModeOff"
         postAction(uri)
@@ -444,6 +466,7 @@ def poll() {
         sendEvent(name: "PoolPump", value: "${state.PoolPump}")
     }
     getRPiData()
+    GetValveMode(state.Mode)
 }
 
 def refresh() {
