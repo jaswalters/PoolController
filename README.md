@@ -18,3 +18,9 @@ If you click restart it will make a call to the RPi to reboot and display reboot
 
 There are also verious monitors to keep track of CPU, disk space usage, memory and CPU temp.
 
+Google Assistant Integration:
+
+To integrate with Google Assistant you will need to create a piston in WebCore and create an IFTTT recipe that calls the piston. The recipe uses Google Assistant and WebHook.
+
+The Google Assistant file on GitHub shows the url that you append to the external piston url in order for IFTTT to make the call to your piston with the proper parameters.
+
