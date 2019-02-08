@@ -1,0 +1,17 @@
+IFTTT Google Assistant Pool Pump
+
+
+#WaterFallMode
+?PoolPumpDevice=PoolPump&PoolPumpDeviceOperation=WaterFallMode
+
+#FountainMode
+?PoolPumpDevice=PoolPump&PoolPumpDeviceOperation=FountainMode
+
+#SpaMode
+?PoolPumpDevice=PoolPump&PoolPumpDeviceOperation=SpaMode
+
+#PumpOn
+?PoolPumpDevice=PoolPump&PoolPumpDeviceOperation=On
+
+#PumpOff
+?PoolPumpDevice=PoolPump&PoolPumpDeviceOperation=Off
