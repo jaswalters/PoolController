@@ -10,3 +10,7 @@ This project requires stretch OS on Raspberry Pi.
 WEBIOPI setup on the RPi.
 http://webiopi.trouch.com/
 
+In WEBIOPI I set the startup config file to enable the GPIO's I'm using to output so each time the RPi starts up the GPIO's will be accessible. You can change the GPIO's or use the same in the Python scripts.
+
+
+
